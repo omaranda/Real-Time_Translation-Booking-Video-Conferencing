@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showResendLink, setShowResendLink] = useState(false);
 
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
@@ -16,13 +17,20 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setShowResendLink(false);
     setIsLoading(true);
 
     try {
       await login(email, password);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+      const errorMessage = err.response?.data?.detail || 'Login failed. Please try again.';
+      setError(errorMessage);
+
+      // Check if error is related to email verification
+      if (errorMessage.toLowerCase().includes('verify') || errorMessage.toLowerCase().includes('verification')) {
+        setShowResendLink(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +77,16 @@ export default function LoginPage() {
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+              <p>{error}</p>
+              {showResendLink && (
+                <button
+                  type="button"
+                  onClick={() => router.push('/resend-verification')}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                >
+                  Resend verification email
+                </button>
+              )}
             </div>
           )}
 

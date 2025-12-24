@@ -35,12 +35,13 @@ export default function JitsiCall({
         return;
       }
 
+      const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
       const script = document.createElement('script');
-      script.src = 'http://localhost:8443/external_api.js';
+      script.src = `http://${domain}/external_api.js`;
       script.async = true;
       script.onload = () => initializeJitsi();
       script.onerror = () => {
-        console.error('Failed to load Jitsi External API. Make sure Jitsi is running on localhost:8443');
+        console.error(`Failed to load Jitsi External API. Make sure Jitsi is running on ${domain}`);
         setIsLoading(false);
       };
       document.body.appendChild(script);

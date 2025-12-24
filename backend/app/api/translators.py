@@ -11,6 +11,11 @@ from app.schemas.translator import (
     TranslatorAvailability,
     TranslatorUpdate
 )
+from app.services.email_service import (
+    send_verification_email,
+    generate_verification_token,
+    get_verification_token_expiry
+)
 
 router = APIRouter(prefix="/translators", tags=["translators"])
 
@@ -37,6 +42,10 @@ async def register_translator(
                 detail=f"Invalid language: {lang}. Must be one of: {', '.join(valid_languages)}",
             )
 
+    # Generate email verification token
+    verification_token = generate_verification_token()
+    token_expiry = get_verification_token_expiry()
+
     # Create translator
     translator = User(
         email=translator_data.email,
@@ -45,12 +54,18 @@ async def register_translator(
         role=UserRole.TRANSLATOR,
         languages=translator_data.languages,
         hourly_rate=translator_data.hourly_rate,
-        is_available=True
+        is_available=True,
+        is_email_verified=False,
+        email_verification_token=verification_token,
+        email_verification_token_expires=token_expiry
     )
 
     db.add(translator)
     db.commit()
     db.refresh(translator)
+
+    # Send verification email
+    send_verification_email(translator.email, translator.name, verification_token)
 
     return translator
 

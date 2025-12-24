@@ -17,6 +17,8 @@ export default function TranslatorRegisterPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   const router = useRouter();
 
@@ -67,15 +69,70 @@ export default function TranslatorRegisterPage() {
       });
 
       if (response.data) {
-        alert('Registration successful! Please login to continue.');
-        router.push('/login');
+        setUserEmail(formData.email);
+        setRegistrationSuccess(true);
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
+
+  if (registrationSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+              <svg
+                className="h-10 w-10 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Registration Successful!</h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-800 mb-2">
+                <strong>Please verify your email address</strong>
+              </p>
+              <p className="text-sm text-blue-700">
+                We've sent a verification link to:
+              </p>
+              <p className="text-sm font-semibold text-blue-900 mt-1">{userEmail}</p>
+            </div>
+            <p className="text-gray-600 mb-6 text-sm">
+              Click the link in the email to activate your account. The link will expire in 24 hours.
+            </p>
+            <div className="space-y-3">
+              <p className="text-xs text-gray-500">
+                Didn't receive the email? Check your spam folder or
+              </p>
+              <button
+                onClick={() => router.push('/resend-verification')}
+                className="w-full flex justify-center py-2 px-4 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Resend Verification Email
+              </button>
+              <button
+                onClick={() => router.push('/login')}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">

@@ -1,8 +1,9 @@
-from sqlalchemy import Column, String, Enum as SQLEnum, Boolean, ForeignKey, Table, Text
+from sqlalchemy import Column, String, Enum as SQLEnum, Boolean, ForeignKey, Table, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
 import uuid
 import enum
+from datetime import datetime
 
 from app.db.session import Base
 
@@ -41,6 +42,11 @@ class User(Base):
 
     # Employee-specific fields
     company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id'), nullable=True)
+
+    # Email verification fields
+    is_email_verified = Column(Boolean, default=False, nullable=False)
+    email_verification_token = Column(String, nullable=True)
+    email_verification_token_expires = Column(DateTime, nullable=True)
 
     # Relationships
     company = relationship("Company", back_populates="employees")
