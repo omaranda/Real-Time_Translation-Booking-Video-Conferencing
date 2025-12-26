@@ -145,8 +145,13 @@ export default function CalendarPage() {
 
   const joinMeeting = (booking: Booking) => {
     if (booking.jitsi_room_name) {
+      const jitsiDomain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
+      const protocol = jitsiDomain.includes('localhost') ||
+                      jitsiDomain.includes('127.0.0.1') ||
+                      jitsiDomain.includes('.local') ||
+                      jitsiDomain.includes('interpretation-service.com') ? 'http' : 'https';
       window.open(
-        `http://localhost:8443/${booking.jitsi_room_name}`,
+        `${protocol}://${jitsiDomain}/${booking.jitsi_room_name}`,
         '_blank'
       );
     }

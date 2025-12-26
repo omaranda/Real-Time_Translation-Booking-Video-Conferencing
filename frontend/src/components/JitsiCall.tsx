@@ -37,7 +37,13 @@ export default function JitsiCall({
 
       const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
       const script = document.createElement('script');
-      script.src = `http://${domain}/external_api.js`;
+      // Use HTTP for local development (localhost and .local domains), HTTPS for production
+      const isLocal = domain.includes('localhost') ||
+                     domain.includes('127.0.0.1') ||
+                     domain.includes('.local') ||
+                     domain.includes('interpretation-service.com');
+      const protocol = isLocal ? 'http' : 'https';
+      script.src = `${protocol}://${domain}/external_api.js`;
       script.async = true;
       script.onload = () => initializeJitsi();
       script.onerror = () => {

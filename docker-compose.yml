@@ -56,8 +56,8 @@ services:
       dockerfile: Dockerfile
     container_name: callcenter-frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-      NEXT_PUBLIC_JITSI_DOMAIN: localhost:8443
+      NEXT_PUBLIC_API_URL: http://app.interpretation-service.com:8000
+      NEXT_PUBLIC_JITSI_DOMAIN: meet.interpretation-service.com:8443
     ports:
       - "3000:3000"
     depends_on:
@@ -129,6 +129,9 @@ services:
     image: jitsi/jvb:stable-9258
     container_name: callcenter-jitsi-jvb
     env_file: ./jitsi-meet/.env
+    environment:
+      - JVB_WS_DOMAIN=meet.interpretation-service.com:8443
+      - JVB_WS_SERVER_ID=default-jvb
     ports:
       - "10000:10000/udp"
       - "4443:4443"
