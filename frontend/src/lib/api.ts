@@ -1,6 +1,32 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Detect the correct API URL based on how the app is accessed
+const getAPIUrl = () => {
+  // In browser environment
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+
+    // If accessed via IP address, use IP for API
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+      return `http://${hostname}:8000`;
+    }
+
+    // If accessed via interpretation-service.com domain
+    if (hostname.includes('interpretation-service.com')) {
+      return 'http://app.interpretation-service.com:8000';
+    }
+
+    // If accessed via localhost
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+  }
+
+  // Server-side or fallback
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+};
+
+const API_URL = getAPIUrl();
 
 export const api = axios.create({
   baseURL: API_URL,

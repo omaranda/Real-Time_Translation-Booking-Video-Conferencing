@@ -13,7 +13,7 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS middleware
+# CORS middleware - Allow both domain and IP-based access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -21,6 +21,8 @@ app.add_middleware(
         "http://localhost:3001",
         "http://app.interpretation-service.com:3000",
         "http://meet.interpretation-service.com:8443",
+        "http://192.168.2.134:3000",  # IP-based access for network devices
+        "http://192.168.2.134:8443",  # Jitsi IP access
     ],
     allow_credentials=True,
     allow_methods=["*"],

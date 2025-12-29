@@ -6,11 +6,9 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import Navigation from '@/components/Navigation';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { api } from '@/lib/api';
 
 const locales = {
   'en-US': enUS,
@@ -81,9 +79,7 @@ export default function CalendarPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get(`${API_URL}/bookings/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/bookings/');
 
       const calendarEvents: CalendarEvent[] = response.data.map((booking: Booking) => {
         const start = new Date(booking.start_time);
@@ -108,7 +104,7 @@ export default function CalendarPage() {
 
   const fetchTranslators = async () => {
     try {
-      const response = await axios.get(`${API_URL}/translators/`, {
+      const response = await api.get('/translators/', {
         params: { available_only: true },
       });
       setTranslators(response.data);
@@ -125,9 +121,7 @@ export default function CalendarPage() {
     e.preventDefault();
 
     try {
-      await axios.post(`${API_URL}/bookings/`, bookingForm, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post('/bookings/', bookingForm);
 
       setShowBookingModal(false);
       fetchBookings();
@@ -145,11 +139,24 @@ export default function CalendarPage() {
 
   const joinMeeting = (booking: Booking) => {
     if (booking.jitsi_room_name) {
-      const jitsiDomain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
+      // Detect the correct Jitsi domain based on how the app is accessed
+      const hostname = window.location.hostname;
+      let jitsiDomain;
+
+      // Use localhost for local development
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        jitsiDomain = 'localhost:8443';
+      } else {
+        // For all other cases (IP or domain), use IP address to avoid DNS issues
+        // This works whether you access via IP or domain (with or without hosts file)
+        jitsiDomain = '192.168.2.134:8443';
+      }
+
       const protocol = jitsiDomain.includes('localhost') ||
                       jitsiDomain.includes('127.0.0.1') ||
                       jitsiDomain.includes('.local') ||
-                      jitsiDomain.includes('interpretation-service.com') ? 'http' : 'https';
+                      jitsiDomain.includes('interpretation-service.com') ||
+                      /^\d+\.\d+\.\d+\.\d+/.test(jitsiDomain) ? 'http' : 'https';
       window.open(
         `${protocol}://${jitsiDomain}/${booking.jitsi_room_name}`,
         '_blank'

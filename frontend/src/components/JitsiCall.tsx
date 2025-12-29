@@ -28,6 +28,20 @@ export default function JitsiCall({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Detect the correct Jitsi domain based on how the app is accessed
+    const getJitsiDomain = () => {
+      const hostname = window.location.hostname;
+
+      // Use localhost for local development
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'localhost:8443';
+      }
+
+      // For all other cases (IP or domain), use IP address to avoid DNS issues
+      // This works whether you access via IP or domain (with or without hosts file)
+      return '192.168.2.134:8443';
+    };
+
     // Load Jitsi External API script
     const loadJitsiScript = () => {
       if (window.JitsiMeetExternalAPI) {
@@ -35,13 +49,14 @@ export default function JitsiCall({
         return;
       }
 
-      const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
+      const domain = getJitsiDomain();
       const script = document.createElement('script');
       // Use HTTP for local development (localhost and .local domains), HTTPS for production
       const isLocal = domain.includes('localhost') ||
                      domain.includes('127.0.0.1') ||
                      domain.includes('.local') ||
-                     domain.includes('interpretation-service.com');
+                     domain.includes('interpretation-service.com') ||
+                     /^\d+\.\d+\.\d+\.\d+/.test(domain);
       const protocol = isLocal ? 'http' : 'https';
       script.src = `${protocol}://${domain}/external_api.js`;
       script.async = true;
@@ -56,7 +71,7 @@ export default function JitsiCall({
     const initializeJitsi = () => {
       if (!containerRef.current || apiRef.current) return;
 
-      const domain = process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'localhost:8443';
+      const domain = getJitsiDomain();
 
       const options = {
         roomName: roomName,

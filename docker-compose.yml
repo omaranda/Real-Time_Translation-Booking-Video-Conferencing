@@ -132,6 +132,7 @@ services:
     environment:
       - JVB_WS_DOMAIN=meet.interpretation-service.com:8443
       - JVB_WS_SERVER_ID=default-jvb
+      - JVB_ADVERTISE_IPS=192.168.2.134
     ports:
       - "10000:10000/udp"
       - "4443:4443"
