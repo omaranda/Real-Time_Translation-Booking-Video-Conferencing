@@ -23,6 +23,7 @@ A comprehensive translation booking and video conferencing platform connecting c
 ## Documentation
 
 For detailed documentation, see the [/docs](/docs) directory:
+- **[Local Setup Guide](/docs/LOCAL_SETUP.md)** - Complete guide for running locally (portfolio/demo)
 - [Translation Platform Guide](/docs/TRANSLATION_PLATFORM.md) - Complete platform overview
 - [Jitsi Setup](/docs/JITSI_SETUP.md) - Video conferencing configuration
 
